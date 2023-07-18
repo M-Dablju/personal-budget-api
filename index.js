@@ -55,6 +55,37 @@ app.get('/envelopes/:id', (req, res) => {
   res.json(envelope);
 });
 
+// Endpoint to update specific envelopes
+app.put('/envelopes/:id', (req, res) => {
+  const id = +req.params.id;
+  const { amount, budget } = req.body;
+
+  // Find the envelope with the corresponding ID
+  const envelope = envelopes.find((env) => env.id === id);
+
+  // Check if the envelope exists
+  if (!envelope) {
+    return res.status(404).json({ error: 'Envelope not found.' });
+  }
+
+  // Update the envelope's properties based on the request body
+  if (typeof amount === 'number' && amount !== 0) {
+    // Update the envelope balance based on the extracted amount
+    envelope.balance -= amount;
+
+    // Update the total budget accordingly
+    totalBudget -= amount;
+  }
+
+  if (typeof budget === 'number' && budget >= 0) {
+    // Update the envelope budget if provided in the request body
+    envelope.budget = budget;
+  }
+
+  // Return the updated envelope as the response
+  res.json(envelope);
+});
+
 // Root route to display the total budget
 app.get('/', (req, res) => {
   res.send(`Total Budget: ${totalBudget}€`);
