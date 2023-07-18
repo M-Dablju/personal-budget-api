@@ -109,6 +109,46 @@ app.delete('/envelopes/:id', (req, res) => {
   res.send(JSON.stringify({ message }, null, 2).replace(/\\n|\\r|\\|\\/g, '')); // removing slashes from the response XD
 });
 
+// Endpoint to transfer budgets between envelopes (POST request)
+app.post('/envelopes/transfer/:from/:to', (req, res) => {
+  const fromId = +req.params.from;
+  const toId = +req.params.to;
+  const amount = +req.body.amount;
+
+  // Find the 'from' envelope with the corresponding ID
+  const fromEnvelope = envelopes.find((env) => env.id === fromId);
+
+  // Check if the 'from' envelope exists
+  if (!fromEnvelope) {
+    return res.status(404).json({ error: 'Source envelope not found.' });
+  }
+
+  // Find the 'to' envelope with the corresponding ID
+  const toEnvelope = envelopes.find((env) => env.id === toId);
+
+  // Check if the 'to' envelope exists
+  if (!toEnvelope) {
+    return res.status(404).json({ error: 'Destination envelope not found.' });
+  }
+
+  // Check if the amount is a valid number greater than zero
+  if (typeof amount !== 'number' || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount provided.' });
+  }
+
+  // Check if the 'from' envelope has sufficient balance for the transfer
+  if (fromEnvelope.balance < amount) {
+    return res.status(400).json({ error: 'Insufficient balance in the source envelope.' });
+  }
+
+  // Perform the budget transfer
+  fromEnvelope.balance -= amount;
+  toEnvelope.balance += amount;
+
+  // Return the updated envelopes as the response (optional)
+  res.json({ fromEnvelope, toEnvelope });
+});
+
 // Root route to display the total budget
 app.get('/', (req, res) => {
   res.send(`Total Budget: ${totalBudget}€`);
