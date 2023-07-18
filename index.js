@@ -86,6 +86,29 @@ app.put('/envelopes/:id', (req, res) => {
   res.json(envelope);
 });
 
+// Endpoint to delete specific envelopes (DELETE request)
+app.delete('/envelopes/:id', (req, res) => {
+  const id = +req.params.id;
+
+  // Find the envelope with the corresponding ID
+  const envelopeToDelete = envelopes.find((env) => env.id === id);
+
+  // Check if the envelope exists
+  if (!envelopeToDelete) {
+    return res.status(404).json({ error: 'Envelope not found.' });
+  }
+
+  // Create a new array without the deleted envelope using the filter method
+  envelopes = envelopes.filter((env) => env.id !== id);
+
+  // Update the total budget by subtracting the deleted envelope's balance
+  totalBudget -= envelopeToDelete.balance;
+
+  // Send a message indicating that the envelope was deleted
+  const message = `Envelope "${envelopeToDelete.title}" was deleted.`;
+  res.send(JSON.stringify({ message }, null, 2).replace(/\\n|\\r|\\|\\/g, '')); // removing slashes from the response XD
+});
+
 // Root route to display the total budget
 app.get('/', (req, res) => {
   res.send(`Total Budget: ${totalBudget}€`);
