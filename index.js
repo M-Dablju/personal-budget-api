@@ -41,10 +41,10 @@ app.get('/envelopes', (req, res) => {
 
 // Endpoint to retrieve a specific envelope
 app.get('/envelopes/:id', (req, res) => {
-  const { id } = req.params;
+  const id = +req.params.id;
 
   // Find the envelope with the corresponding ID
-  const envelope = envelopes.find((env) => env.id === parseInt(id));
+  const envelope = envelopes.find((env) => env.id === id);
 
   // Check if the envelope exists
   if (!envelope) {
