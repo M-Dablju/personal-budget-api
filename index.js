@@ -39,6 +39,22 @@ app.get('/envelopes', (req, res) => {
     res.json(envelopes);
 });
 
+// Endpoint to retrieve a specific envelope
+app.get('/envelopes/:id', (req, res) => {
+  const { id } = req.params;
+
+  // Find the envelope with the corresponding ID
+  const envelope = envelopes.find((env) => env.id === parseInt(id));
+
+  // Check if the envelope exists
+  if (!envelope) {
+    return res.status(404).json({ error: 'Envelope not found.' });
+  }
+
+  // Return the envelope as the response
+  res.json(envelope);
+});
+
 // Root route to display the total budget
 app.get('/', (req, res) => {
   res.send(`Total Budget: ${totalBudget}€`);
